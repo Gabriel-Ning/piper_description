@@ -10,7 +10,7 @@
   <xacro:arg name="ros2_control" default="true"/>
   <xacro:arg name="use_fake_hardware" default="false"/>
   <xacro:arg name="enable_gripper_control" default="false"/>
-  <xacro:arg name="mit_kd_effort_damping" default="0.8"/>
+  <xacro:arg name="mit_kd_effort_damping" default="0.0"/>
   <xacro:arg name="xyz_ee" default="0 0 0"/>
   <xacro:arg name="rpy_ee" default="0 0 0"/>
   <xacro:arg
