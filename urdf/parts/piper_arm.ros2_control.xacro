@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="piper_ros2_control">
   <xacro:macro name="piper_arm_ros2_control"
-    params="name:='PiperHardware' prefix:='' can_interface:='can0' init_can:='false' use_fake_hardware:='false' enable_gripper_control:='false' mit_kd_effort_damping:='0.0'">
+    params="name:='PiperHardware' prefix:='' can_interface:='can0' use_fake_hardware:='false' mit_kd_effort_damping:='0.0'">
     <ros2_control name="${name}" type="system">
       <hardware>
         <xacro:if value="${use_fake_hardware}">
@@ -10,7 +10,6 @@
         <xacro:unless value="${use_fake_hardware}">
           <plugin>piper_hardware_interface/PiperHardwareInterface</plugin>
           <param name="can_interface">${can_interface}</param>
-          <param name="init_can">${init_can}</param>
           <!-- MIT effort-mode velocity damping. Default 0.0 keeps the ROS effort interface torque-transparent. -->
           <param name="mit_kd_effort_damping">${mit_kd_effort_damping}</param>
         </xacro:unless>
@@ -33,13 +32,6 @@
       <xacro:configure_joint joint_name="${prefix}joint4"/>
       <xacro:configure_joint joint_name="${prefix}joint5"/>
       <xacro:configure_joint joint_name="${prefix}joint6"/>
-
-      <xacro:if value="${enable_gripper_control}">
-        <joint name="${prefix}gripper_joint1">
-          <command_interface name="position"/>
-          <state_interface name="position"/>
-        </joint>
-      </xacro:if>
     </ros2_control>
   </xacro:macro>
 </robot>

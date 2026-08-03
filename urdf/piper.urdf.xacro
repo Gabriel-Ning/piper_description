@@ -5,7 +5,6 @@
   <xacro:arg name="xyz" default="0 0 0"/>
   <xacro:arg name="rpy" default="0 0 0"/>
   <xacro:arg name="can_interface" default="can0"/>
-  <xacro:arg name="init_can" default="false"/>
   <xacro:arg name="ros2_control" default="true"/>
   <xacro:arg name="use_fake_hardware" default="false"/>
   <xacro:arg name="mit_kd_effort_damping" default="0.0"/>
@@ -24,7 +23,6 @@
     <xacro:piper_arm_ros2_control
       prefix="$(arg prefix)"
       can_interface="$(arg can_interface)"
-      init_can="$(arg init_can)"
       use_fake_hardware="$(arg use_fake_hardware)"
       mit_kd_effort_damping="$(arg mit_kd_effort_damping)"/>
   </xacro:if>

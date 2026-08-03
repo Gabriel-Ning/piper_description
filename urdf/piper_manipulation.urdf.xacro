@@ -1,0 +1,105 @@
+<?xml version="1.0"?>
+<!-- Deployment-neutral left/right Piper composition. Values are injected by bringup. -->
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="piper_manipulation">
+  <xacro:include filename="$(find piper_description)/urdf/parts/piper_arm.xacro"/>
+  <xacro:include filename="$(find piper_description)/urdf/parts/piper_gripper.xacro"/>
+  <xacro:include filename="$(find piper_description)/urdf/parts/piper_arm.ros2_control.xacro"/>
+  <xacro:include filename="$(find piper_description)/urdf/parts/piper_gripper.ros2_control.xacro"/>
+  <xacro:include filename="$(find pika_gripper_description)/urdf/pika_gripper.xacro"/>
+  <xacro:include filename="$(find pika_gripper_description)/urdf/pika_gripper.ros2_control.xacro"/>
+
+  <xacro:arg name="enable_left" default="true"/>
+  <xacro:arg name="enable_right" default="true"/>
+  <xacro:arg name="use_fake_hardware" default="true"/>
+  <xacro:arg name="left_can_interface" default="can0"/>
+  <xacro:arg name="right_can_interface" default="can1"/>
+  <!-- End-effector selection is per side: at most one of the two flags below
+       may be true for a given side. The controller_bringup launch file
+       derives both flags from one validated `<side>_end_effector` argument
+       (none | piper_gripper | pika_gripper) so unsupported values fail
+       launch instead of silently producing a partial robot model. -->
+  <xacro:arg name="enable_left_gripper" default="false"/>
+  <xacro:arg name="enable_right_gripper" default="false"/>
+  <xacro:arg name="left_gripper_home_on_activate" default="true"/>
+  <xacro:arg name="right_gripper_home_on_activate" default="true"/>
+  <xacro:arg name="enable_left_pika_gripper" default="false"/>
+  <xacro:arg name="enable_right_pika_gripper" default="false"/>
+  <xacro:arg name="left_gripper_serial_port" default="/dev/ttyUSB0"/>
+  <xacro:arg name="right_gripper_serial_port" default="/dev/ttyUSB1"/>
+  <xacro:arg name="left_xyz" default="0 0.30 0"/>
+  <xacro:arg name="right_xyz" default="0 -0.30 0"/>
+  <xacro:arg name="left_rpy" default="0 0 0"/>
+  <xacro:arg name="right_rpy" default="0 0 0"/>
+
+  <xacro:property
+    name="gripper_tcp"
+    value="${xacro.load_yaml('$(find piper_description)/config/gripper_tcp.yaml')}"/>
+
+  <link name="world"/>
+
+  <xacro:if value="$(arg enable_left)">
+    <joint name="world_to_left_mount" type="fixed">
+      <parent link="world"/><child link="left_mount"/>
+      <origin xyz="$(arg left_xyz)" rpy="$(arg left_rpy)"/>
+    </joint>
+    <xacro:piper_arm prefix="left_" connected_to="left_mount"/>
+    <xacro:piper_arm_ros2_control
+      name="LeftPiperHardware" prefix="left_"
+      can_interface="$(arg left_can_interface)"
+      use_fake_hardware="$(arg use_fake_hardware)"/>
+    <xacro:if value="$(arg enable_left_gripper)">
+      <xacro:piper_gripper
+        prefix="left_"
+        parent_link="flange_link"
+        tcp_xyz="${gripper_tcp['origin']['xyz']}"
+        tcp_rpy="${gripper_tcp['origin']['rpy']}"/>
+      <xacro:piper_gripper_ros2_control
+        name="LeftPiperGripperHardware" prefix="left_"
+        can_interface="$(arg left_can_interface)"
+        use_fake_hardware="$(arg use_fake_hardware)"
+        home_on_activate="$(arg left_gripper_home_on_activate)"/>
+    </xacro:if>
+    <xacro:if value="$(arg enable_left_pika_gripper)">
+      <xacro:pika_gripper prefix="left_" parent="left_flange_link">
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+      </xacro:pika_gripper>
+      <xacro:pika_gripper_ros2_control
+        name="LeftPikaGripperHardware" prefix="left_"
+        serial_port="$(arg left_gripper_serial_port)"
+        use_fake_hardware="$(arg use_fake_hardware)"/>
+    </xacro:if>
+  </xacro:if>
+
+  <xacro:if value="$(arg enable_right)">
+    <joint name="world_to_right_mount" type="fixed">
+      <parent link="world"/><child link="right_mount"/>
+      <origin xyz="$(arg right_xyz)" rpy="$(arg right_rpy)"/>
+    </joint>
+    <xacro:piper_arm prefix="right_" connected_to="right_mount"/>
+    <xacro:piper_arm_ros2_control
+      name="RightPiperHardware" prefix="right_"
+      can_interface="$(arg right_can_interface)"
+      use_fake_hardware="$(arg use_fake_hardware)"/>
+    <xacro:if value="$(arg enable_right_gripper)">
+      <xacro:piper_gripper
+        prefix="right_"
+        parent_link="flange_link"
+        tcp_xyz="${gripper_tcp['origin']['xyz']}"
+        tcp_rpy="${gripper_tcp['origin']['rpy']}"/>
+      <xacro:piper_gripper_ros2_control
+        name="RightPiperGripperHardware" prefix="right_"
+        can_interface="$(arg right_can_interface)"
+        use_fake_hardware="$(arg use_fake_hardware)"
+        home_on_activate="$(arg right_gripper_home_on_activate)"/>
+    </xacro:if>
+    <xacro:if value="$(arg enable_right_pika_gripper)">
+      <xacro:pika_gripper prefix="right_" parent="right_flange_link">
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+      </xacro:pika_gripper>
+      <xacro:pika_gripper_ros2_control
+        name="RightPikaGripperHardware" prefix="right_"
+        serial_port="$(arg right_gripper_serial_port)"
+        use_fake_hardware="$(arg use_fake_hardware)"/>
+    </xacro:if>
+  </xacro:if>
+</robot>
