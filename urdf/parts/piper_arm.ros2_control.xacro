@@ -10,6 +10,8 @@
         <xacro:unless value="${use_fake_hardware}">
           <plugin>piper_hardware_interface/PiperHardwareInterface</plugin>
           <param name="can_interface">${can_interface}</param>
+          <!-- Side prefix for opaque state interfaces (robot_state, cartesian_pose, robot_time). -->
+          <param name="prefix">${prefix}</param>
           <!-- MIT effort-mode velocity damping. Default 0.0 keeps the ROS effort interface torque-transparent. -->
           <param name="mit_kd_effort_damping">${mit_kd_effort_damping}</param>
         </xacro:unless>
