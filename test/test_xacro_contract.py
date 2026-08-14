@@ -127,16 +127,15 @@ def test_dual_arm_defaults_to_table_and_piper_grippers():
         }
 
 
-def test_dual_arm_can_disable_grippers_and_table():
+def test_dual_arm_can_disable_grippers():
     root = _render(
         "piper_bimanual_manipulation.urdf.xacro",
         enable_left_gripper="false",
         enable_right_gripper="false",
-        enable_table="false",
     )
     assert set(_components(root)) == {
         "left_piper_hardware",
         "right_piper_hardware",
     }
     links = {link.attrib["name"] for link in root.findall("link")}
-    assert "table_table_link" not in links
+    assert {"table_base_link", "table_table_link"}.issubset(links)

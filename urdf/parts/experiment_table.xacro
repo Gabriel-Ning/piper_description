@@ -34,12 +34,6 @@
           <color rgba="0.015 0.015 0.015 1"/>
         </material>
       </visual>
-      <collision>
-        <origin xyz="0.458644 0.11737 0.584518" rpy="0 0 0"/>
-        <geometry>
-          <mesh filename="package://piper_description/meshes/table/part_1__2.stl"/>
-        </geometry>
-      </collision>
     </link>
   </xacro:macro>
 </robot>

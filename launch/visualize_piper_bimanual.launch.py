@@ -9,6 +9,7 @@ from launch.conditions import IfCondition, UnlessCondition
 from launch.substitutions import LaunchConfiguration
 from launch_ros.actions import Node
 import os
+import sys
 import xacro
 
 
@@ -20,7 +21,6 @@ def _nodes(context):
     mappings = {
         "enable_left": "true",
         "enable_right": "true",
-        "enable_table": LaunchConfiguration("enable_table").perform(context),
         "enable_left_gripper": LaunchConfiguration("enable_grippers").perform(context),
         "enable_right_gripper": LaunchConfiguration("enable_grippers").perform(context),
         "use_fake_hardware": "true",
@@ -50,6 +50,9 @@ def _nodes(context):
             condition=IfCondition(use_gui),
             parameters=[{"robot_description": robot_description}],
             remappings=[("joint_states", joint_states_topic)],
+            # python_qt_binding expects CONDA_PREFIX, while pixi exposes the
+            # environment through sys.prefix instead.
+            additional_env={"CONDA_PREFIX": os.environ.get("CONDA_PREFIX", sys.prefix)},
         ),
         Node(
             package="joint_state_publisher",
@@ -76,7 +79,6 @@ def _nodes(context):
 def generate_launch_description():
     return LaunchDescription(
         [
-            DeclareLaunchArgument("enable_table", default_value="true"),
             DeclareLaunchArgument("enable_grippers", default_value="true"),
             DeclareLaunchArgument("left_xyz", default_value="-0.38 0.32 0.71"),
             DeclareLaunchArgument("right_xyz", default_value="0.38 0.32 0.71"),

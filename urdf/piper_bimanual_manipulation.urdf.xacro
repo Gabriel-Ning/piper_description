@@ -9,12 +9,9 @@
   <xacro:include filename="$(find piper_description)/urdf/parts/piper_arm.ros2_control.xacro"/>
   <xacro:include filename="$(find piper_description)/urdf/parts/piper_gripper.ros2_control.xacro"/>
   <xacro:include filename="$(find piper_description)/urdf/parts/experiment_table.xacro"/>
-  <xacro:include filename="$(find pika_gripper_description)/urdf/pika_gripper.xacro"/>
-  <xacro:include filename="$(find pika_gripper_description)/urdf/pika_gripper.ros2_control.xacro"/>
 
   <xacro:arg name="enable_left" default="true"/>
   <xacro:arg name="enable_right" default="true"/>
-  <xacro:arg name="enable_table" default="true"/>
   <xacro:arg name="use_fake_hardware" default="true"/>
   <xacro:arg name="left_can_interface" default="can0"/>
   <xacro:arg name="right_can_interface" default="can1"/>
@@ -33,15 +30,27 @@
   <xacro:arg name="left_rpy" default="0 0 -1.57079632679"/>
   <xacro:arg name="right_rpy" default="0 0 -1.57079632679"/>
 
+  <!-- Pika is an optional end effector. Keep its includes conditional so the
+       default Piper-gripper visualization does not require that package. -->
+  <xacro:if value="$(arg enable_left_pika_gripper)">
+    <xacro:include filename="$(find pika_gripper_description)/urdf/pika_gripper.xacro"/>
+    <xacro:include filename="$(find pika_gripper_description)/urdf/pika_gripper.ros2_control.xacro"/>
+  </xacro:if>
+  <xacro:unless value="$(arg enable_left_pika_gripper)">
+    <xacro:if value="$(arg enable_right_pika_gripper)">
+      <xacro:include filename="$(find pika_gripper_description)/urdf/pika_gripper.xacro"/>
+      <xacro:include filename="$(find pika_gripper_description)/urdf/pika_gripper.ros2_control.xacro"/>
+    </xacro:if>
+  </xacro:unless>
+
   <xacro:property
     name="gripper_tcp"
     value="${xacro.load_yaml('$(find piper_description)/config/gripper_tcp.yaml')}"/>
 
   <link name="world"/>
 
-  <xacro:if value="$(arg enable_table)">
-    <xacro:experiment_table prefix="table_" parent="world" xyz="0 0 0" rpy="0 0 0"/>
-  </xacro:if>
+  <!-- Visual-only; no <collision>. Planner world cuboids own table collision. -->
+  <xacro:experiment_table prefix="table_" parent="world" xyz="0 0 0" rpy="0 0 0"/>
 
   <xacro:if value="$(arg enable_left)">
     <joint name="world_to_left_mount" type="fixed">
