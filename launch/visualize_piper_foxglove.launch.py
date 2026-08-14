@@ -2,9 +2,16 @@ import os
 
 import xacro
 import yaml
-from ament_index_python.packages import PackageNotFoundError, get_package_share_directory
+from ament_index_python.packages import (
+    PackageNotFoundError,
+    get_package_share_directory,
+)
 from launch import LaunchContext, LaunchDescription
-from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription, OpaqueFunction
+from launch.actions import (
+    DeclareLaunchArgument,
+    IncludeLaunchDescription,
+    OpaqueFunction,
+)
 from launch.launch_description_sources import FrontendLaunchDescriptionSource
 from launch.substitutions import LaunchConfiguration
 from launch_ros.actions import Node
@@ -17,12 +24,16 @@ def robot_description_from_xacro(context: LaunchContext) -> str:
     xacro_file = os.path.join(
         share,
         "urdf",
-        "piper_with_gripper.urdf.xacro" if with_gripper == "true" else "piper.urdf.xacro",
+        "piper_with_gripper.urdf.xacro"
+        if with_gripper == "true"
+        else "piper.urdf.xacro",
     )
 
     mappings = {
         "prefix": context.perform_substitution(LaunchConfiguration("prefix")),
-        "connected_to": context.perform_substitution(LaunchConfiguration("connected_to")),
+        "connected_to": context.perform_substitution(
+            LaunchConfiguration("connected_to")
+        ),
         "xyz": context.perform_substitution(LaunchConfiguration("xyz")),
         "rpy": context.perform_substitution(LaunchConfiguration("rpy")),
         "ros2_control": "false",
@@ -82,7 +93,9 @@ def launch_setup(context: LaunchContext):
             "foxglove_bridge_launch.xml",
         )
         nodes.append(
-            IncludeLaunchDescription(FrontendLaunchDescriptionSource(foxglove_bridge_launch))
+            IncludeLaunchDescription(
+                FrontendLaunchDescriptionSource(foxglove_bridge_launch)
+            )
         )
 
     return nodes
@@ -108,7 +121,9 @@ def generate_launch_description() -> LaunchDescription:
             DeclareLaunchArgument("rpy_ee", default_value="0 0 0"),
             DeclareLaunchArgument("tcp_xyz", default_value=tcp_xyz_default),
             DeclareLaunchArgument("tcp_rpy", default_value=tcp_rpy_default),
-            DeclareLaunchArgument("joint_states_topic", default_value="/piper_description/joint_states"),
+            DeclareLaunchArgument(
+                "joint_states_topic", default_value="/piper_description/joint_states"
+            ),
             DeclareLaunchArgument("start_bridge", default_value="true"),
             OpaqueFunction(function=launch_setup),
         ]

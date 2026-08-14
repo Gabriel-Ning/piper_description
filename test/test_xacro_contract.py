@@ -65,7 +65,9 @@ def test_single_gripper_is_an_independent_real_component():
     }
 
     physical_joints = {joint.attrib["name"]: joint for joint in root.findall("joint")}
-    assert physical_joints["left_gripper_joint1"].find("limit").attrib["upper"] == "0.04"
+    assert (
+        physical_joints["left_gripper_joint1"].find("limit").attrib["upper"] == "0.04"
+    )
     assert physical_joints["left_gripper_joint2"].find("mimic").attrib == {
         "joint": "left_gripper_joint1",
         "multiplier": "-1",
@@ -83,30 +85,41 @@ def test_fake_arm_and_gripper_remain_separate_components():
     }
 
 
-def test_dual_gripper_composition_has_four_unique_components():
+def test_dual_arm_defaults_to_table_and_piper_grippers():
     root = _render(
-        "piper_manipulation.urdf.xacro",
+        "piper_bimanual_manipulation.urdf.xacro",
         use_fake_hardware="false",
-        enable_left_gripper="true",
-        enable_right_gripper="true",
         left_can_interface="piper0",
         right_can_interface="piper1",
     )
     components = _components(root)
     assert set(components) == {
-        "LeftPiperHardware",
-        "LeftPiperGripperHardware",
-        "RightPiperHardware",
-        "RightPiperGripperHardware",
+        "left_piper_hardware",
+        "left_piper_gripper_hardware",
+        "right_piper_hardware",
+        "right_piper_gripper_hardware",
     }
-    for side, can_interface in (("Left", "piper0"), ("Right", "piper1")):
-        gripper = components[f"{side}PiperGripperHardware"]
+    for side, can_interface in (("left", "piper0"), ("right", "piper1")):
+        gripper = components[f"{side}_piper_gripper_hardware"]
         assert _plugin(gripper) == "piper_hardware_interface/PiperGripperInterface"
         assert _parameters(gripper)["can_interface"] == can_interface
 
-    assert all("init_can" not in _parameters(component) for component in components.values())
+    assert all(
+        "init_can" not in _parameters(component) for component in components.values()
+    )
+
+    links = {link.attrib["name"] for link in root.findall("link")}
+    assert {"table_base_link", "table_table_link"}.issubset(links)
 
     physical_joints = {joint.attrib["name"]: joint for joint in root.findall("joint")}
+    assert physical_joints["world_to_left_mount"].find("origin").attrib == {
+        "rpy": "0 0 -1.57079632679",
+        "xyz": "-0.38 0.32 0.71",
+    }
+    assert physical_joints["world_to_right_mount"].find("origin").attrib == {
+        "rpy": "0 0 -1.57079632679",
+        "xyz": "0.38 0.32 0.71",
+    }
     for prefix in ("left_", "right_"):
         assert physical_joints[f"{prefix}gripper_tcp_joint"].find("origin").attrib == {
             "rpy": "0 0 0",
@@ -114,6 +127,16 @@ def test_dual_gripper_composition_has_four_unique_components():
         }
 
 
-def test_dual_composition_defaults_to_arm_only():
-    components = _components(_render("piper_manipulation.urdf.xacro"))
-    assert set(components) == {"LeftPiperHardware", "RightPiperHardware"}
+def test_dual_arm_can_disable_grippers_and_table():
+    root = _render(
+        "piper_bimanual_manipulation.urdf.xacro",
+        enable_left_gripper="false",
+        enable_right_gripper="false",
+        enable_table="false",
+    )
+    assert set(_components(root)) == {
+        "left_piper_hardware",
+        "right_piper_hardware",
+    }
+    links = {link.attrib["name"] for link in root.findall("link")}
+    assert "table_table_link" not in links

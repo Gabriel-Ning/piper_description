@@ -24,8 +24,14 @@ def robot_state_publisher_spawner(context: LaunchContext):
     use_joint_state_gui = LaunchConfiguration("use_joint_state_gui")
     joint_states_topic = LaunchConfiguration("joint_states_topic")
     with_gripper_str = context.perform_substitution(with_gripper)
-    base_xacro = str(PathJoinSubstitution([share, "urdf", "piper.urdf.xacro"]).perform(context))
-    gripper_xacro = str(PathJoinSubstitution([share, "urdf", "piper_with_gripper.urdf.xacro"]).perform(context))
+    base_xacro = str(
+        PathJoinSubstitution([share, "urdf", "piper.urdf.xacro"]).perform(context)
+    )
+    gripper_xacro = str(
+        PathJoinSubstitution([share, "urdf", "piper_with_gripper.urdf.xacro"]).perform(
+            context
+        )
+    )
 
     base_mappings = {
         "prefix": context.perform_substitution(prefix),
@@ -48,7 +54,9 @@ def robot_state_publisher_spawner(context: LaunchContext):
             gripper_xacro, mappings={**gripper_mappings, "load_gripper": "true"}
         ).toprettyxml(indent="  ")
     else:
-        robot_description = xacro.process_file(base_xacro, mappings=base_mappings).toprettyxml(indent="  ")
+        robot_description = xacro.process_file(
+            base_xacro, mappings=base_mappings
+        ).toprettyxml(indent="  ")
 
     return [
         Node(
@@ -82,9 +90,9 @@ def generate_launch_description() -> LaunchDescription:
     share = get_package_share_directory("piper_description")
     use_rviz = LaunchConfiguration("use_rviz")
     rviz_config = PathJoinSubstitution([share, "rviz", "visualize_piper.rviz"])
-    gripper_tcp_yaml_path = PathJoinSubstitution([share, "config", "gripper_tcp.yaml"]).perform(
-        LaunchContext()
-    )
+    gripper_tcp_yaml_path = PathJoinSubstitution(
+        [share, "config", "gripper_tcp.yaml"]
+    ).perform(LaunchContext())
     with open(gripper_tcp_yaml_path, "r", encoding="utf-8") as f:
         gripper_tcp_cfg = yaml.safe_load(f)
     tcp_xyz_default = str(gripper_tcp_cfg["origin"]["xyz"])
@@ -115,7 +123,9 @@ def generate_launch_description() -> LaunchDescription:
             DeclareLaunchArgument("tcp_rpy", default_value=tcp_rpy_default),
             DeclareLaunchArgument("use_joint_state_gui", default_value="false"),
             DeclareLaunchArgument("use_rviz", default_value="true"),
-            DeclareLaunchArgument("joint_states_topic", default_value="/piper_description/joint_states"),
+            DeclareLaunchArgument(
+                "joint_states_topic", default_value="/piper_description/joint_states"
+            ),
             robot_state_publisher_spawner_opaque_function,
             rviz,
         ]

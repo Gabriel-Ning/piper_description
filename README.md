@@ -16,7 +16,9 @@ All meshes are vendored under this package (`meshes/`), so it does not depend on
 - `urdf/piper.urdf.xacro`: base arm + ros2_control entrypoint
 - `urdf/piper_with_gripper.urdf.xacro`: arm + official gripper + ros2_control entrypoint
 - `urdf/piper_with_teach.urdf.xacro`: canonical unprefixed arm + teaching-pendant model for `libpiper::Model`
-- `urdf/piper_manipulation.urdf.xacro`: deployment-neutral left/right follower composition
+- `urdf/parts/experiment_table.xacro`: experiment-table macro (meshes under `meshes/table/`)
+- `urdf/piper_bimanual_manipulation.urdf.xacro`: experiment-table workbench + dual arms with Piper grippers
+- `launch/visualize_piper_bimanual.launch.py`: RViz + joint_state_publisher for the bimanual cell
 
 ## Xacro examples
 
@@ -46,17 +48,32 @@ present without a controllable hardware component.
 the complete opening width, so `PiperGripperInterface` performs the factor-of-two
 conversion at the hardware boundary.
 
-The dual-follower composition can independently attach a Piper gripper to each
-enabled side:
+The dual-follower workbench embeds the experiment table
+(from [experiment_table_models](https://github.com/Marco6-3/experiment_table_models);
+meshes in `meshes/table/`, macro in `urdf/parts/experiment_table.xacro`) and
+mounts each Piper with a native gripper. Default base poses match that model's
+rear crossbeam:
+
+| Arm | `xyz` / m | `rpy` / rad |
+|-----|-----------|------------|
+| left | `-0.38 0.32 0.71` | `0 0 -π/2` |
+| right | `0.38 0.32 0.71` | `0 0 -π/2` |
 
 ```bash
-xacro "$(ros2 pkg prefix piper_description)/share/piper_description/urdf/piper_manipulation.urdf.xacro" \
-  enable_left_gripper:=true enable_right_gripper:=true
+ros2 launch piper_description visualize_piper_bimanual.launch.py
 ```
 
-This produces four components: left/right arm and left/right gripper. The
-gripper components reuse their matching arm's CAN name; all components assume
-their SocketCAN links are already ready.
+Or expand the xacro directly:
+
+```bash
+xacro "$(ros2 pkg prefix piper_description)/share/piper_description/urdf/piper_bimanual_manipulation.urdf.xacro"
+```
+
+This produces four `ros2_control` components: left/right arm and left/right
+gripper. The gripper components reuse their matching arm's CAN name; all
+components assume their SocketCAN links are already ready. Launch-time
+end-effector selection (`none` / `piper_gripper` / `pika_gripper`) still
+overrides the gripper flags via bringup mappings.
 
 Leader gravity model:
 

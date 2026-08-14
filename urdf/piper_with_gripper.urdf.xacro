@@ -35,7 +35,7 @@
   <xacro:if value="$(arg load_gripper)">
     <xacro:piper_gripper
       prefix="$(arg prefix)"
-      parent_link="flange_link"
+      parent_link="$(arg prefix)flange_link"
       xyz_ee="$(arg xyz_ee)"
       rpy_ee="$(arg rpy_ee)"
       tcp_xyz="$(arg tcp_xyz)"

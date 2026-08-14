@@ -26,7 +26,9 @@
     </link>
     <joint name="${prefix}gripper_base_joint" type="fixed">
       <origin xyz="${xyz_ee}" rpy="${rpy_ee}"/>
-      <parent link="${prefix}${parent_link}"/>
+      <!-- parent_link is absolute (do not apply prefix). Marvin uses flange_L;
+           Piper arms use left_flange_link / flange_link. -->
+      <parent link="${parent_link}"/>
       <child link="${prefix}gripper_base"/>
     </joint>
 
