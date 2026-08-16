@@ -147,7 +147,7 @@ def test_dual_arm_defaults_to_table_and_piper_grippers():
         )
         assert plate.find("collision") is None
         visual = plate.find("visual")
-        assert visual.find("origin").attrib["xyz"] == "0 0 -0.005"
+        assert visual.find("origin").attrib["xyz"] == "0 0.005 -0.005"
         assert visual.find("geometry/box").attrib["size"] == "0.26 0.1 0.01"
     for prefix in ("left_", "right_"):
         assert physical_joints[f"{prefix}gripper_tcp_joint"].find("origin").attrib == {
