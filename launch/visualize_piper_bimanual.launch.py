@@ -13,6 +13,16 @@ import sys
 import xacro
 
 
+def _optional_xacro_args(context, *names):
+    """Forward launch args to xacro only when the user set them."""
+    mappings = {}
+    for name in names:
+        value = LaunchConfiguration(name).perform(context)
+        if value:
+            mappings[name] = value
+    return mappings
+
+
 def _nodes(context):
     share = get_package_share_directory("piper_description")
     xacro_path = os.path.join(
@@ -24,11 +34,12 @@ def _nodes(context):
         "enable_left_gripper": LaunchConfiguration("enable_grippers").perform(context),
         "enable_right_gripper": LaunchConfiguration("enable_grippers").perform(context),
         "use_fake_hardware": "true",
-        "left_xyz": LaunchConfiguration("left_xyz").perform(context),
-        "right_xyz": LaunchConfiguration("right_xyz").perform(context),
-        "left_rpy": LaunchConfiguration("left_rpy").perform(context),
-        "right_rpy": LaunchConfiguration("right_rpy").perform(context),
     }
+    mappings.update(
+        _optional_xacro_args(
+            context, "left_xyz", "right_xyz", "left_rpy", "right_rpy"
+        )
+    )
     robot_description = xacro.process_file(
         xacro_path, mappings=mappings
     ).toprettyxml(indent="  ")
@@ -80,10 +91,10 @@ def generate_launch_description():
     return LaunchDescription(
         [
             DeclareLaunchArgument("enable_grippers", default_value="true"),
-            DeclareLaunchArgument("left_xyz", default_value="-0.38 0.32 0.71"),
-            DeclareLaunchArgument("right_xyz", default_value="0.38 0.32 0.71"),
-            DeclareLaunchArgument("left_rpy", default_value="0 0 -1.57079632679"),
-            DeclareLaunchArgument("right_rpy", default_value="0 0 -1.57079632679"),
+            DeclareLaunchArgument("left_xyz", default_value=""),
+            DeclareLaunchArgument("right_xyz", default_value=""),
+            DeclareLaunchArgument("left_rpy", default_value=""),
+            DeclareLaunchArgument("right_rpy", default_value=""),
             DeclareLaunchArgument("use_joint_state_gui", default_value="true"),
             DeclareLaunchArgument("use_rviz", default_value="true"),
             DeclareLaunchArgument(

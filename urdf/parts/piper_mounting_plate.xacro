@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<!-- Visual-only 260 x 100 x 10 mm plate under each Piper base.
+     Top face is flush with the arm mount; collision stays in the planner world. -->
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="piper_mounting_plate">
+  <xacro:macro name="piper_mounting_plate"
+    params="prefix parent xyz:='0 0 0' rpy:='0 0 0'">
+    <joint name="${prefix}mounting_plate_joint" type="fixed">
+      <parent link="${parent}"/>
+      <child link="${prefix}mounting_plate_link"/>
+      <origin xyz="${xyz}" rpy="${rpy}"/>
+    </joint>
+    <link name="${prefix}mounting_plate_link">
+      <visual>
+        <origin xyz="0 0.005 -0.005" rpy="0 0 0"/>
+        <geometry>
+          <box size="0.26 0.1 0.01"/>
+        </geometry>
+        <material name="${prefix}mounting_plate">
+          <color rgba="0.015 0.015 0.015 1"/>
+        </material>
+      </visual>
+    </link>
+  </xacro:macro>
+</robot>

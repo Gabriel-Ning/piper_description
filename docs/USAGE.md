@@ -12,7 +12,7 @@ piper_description/
     piper_with_gripper.urdf.xacro
     piper_with_teach.urdf.xacro
     piper_bimanual_manipulation.urdf.xacro
-    parts/                arm, gripper, teach, experiment_table, ros2_control
+    parts/                arm, gripper, teach, experiment_table, mounting_plate, ros2_control
 ```
 
 Arm kinematics / limits / inertials are loaded from YAML by `piper_arm.xacro`.
@@ -56,12 +56,10 @@ joint/frame names, no `ros2_control` block.
 (visual mesh only; [experiment_table_models](https://github.com/Marco6-3/experiment_table_models)).
 Collision for the table belongs in the planner world, not this URDF.
 
-Default mounts (rear crossbeam, yaw toward the tabletop):
-
-| Arm | `xyz` / m | `rpy` / rad |
-| --- | --- | --- |
-| left | `-0.38 0.32 0.71` | `0 0 -π/2` |
-| right | `0.38 0.32 0.71` | `0 0 -π/2` |
+Default mounts live in `left_xyz` / `right_xyz` / `left_rpy` / `right_rpy`
+in `urdf/piper_bimanual_manipulation.urdf.xacro`. Visualize launches do not
+re-hardcode those values. Each arm also gets a visual-only 0.26 x 0.1 x 0.01 m
+mounting plate at the same `xyz`, flush under the base.
 
 Default end effectors are native Piper grippers. Bringup maps
 `<side>_end_effector` (`none` / `piper_gripper` / `pika_gripper`) onto:
@@ -101,15 +99,20 @@ Under pixi, `visualize_piper_bimanual.launch.py` sets `CONDA_PREFIX` for
 | Parameter | Default | Description |
 | --- | --- | --- |
 | `with_gripper` | `false` | Load `piper_with_gripper.urdf.xacro`. |
-| `prefix` | `""` | Prefix for link/joint names. |
-| `connected_to` | `world` | Parent of the fixed base mount. |
-| `xyz` / `rpy` | `0 0 0` | Base mount pose relative to `connected_to`. |
-| `xyz_ee` / `rpy_ee` | `0 0 0` | Gripper mount relative to `flange_link`. |
-| `tcp_xyz` / `tcp_rpy` | `config/gripper_tcp.yaml` | TCP relative to `gripper_base`. |
+| `prefix` | xacro default | Prefix for link/joint names. |
+| `connected_to` | xacro default | Parent of the fixed base mount. |
+| `xyz` / `rpy` | xacro default | Base mount pose relative to `connected_to`. |
+| `xyz_ee` / `rpy_ee` | xacro default | Gripper mount relative to `flange_link`. |
+| `tcp_xyz` / `tcp_rpy` | xacro default | TCP relative to `gripper_base`. |
+| `left_xyz` / `right_xyz` | xacro default | Bimanual arm mounts. |
+| `left_rpy` / `right_rpy` | xacro default | Bimanual arm yaw. |
 | `use_joint_state_gui` | `false` (`true` on bimanual) | GUI sliders vs headless publisher. |
 | `use_rviz` | `true` | Start RViz with `rviz/visualize_piper.rviz`. |
 | `joint_states_topic` | `/piper_description/joint_states` | Joint state topic. |
 | `enable_grippers` | `true` | Bimanual launch only: native grippers. |
+
+Empty pose/TCP launch arguments are not forwarded to xacro, so editing the
+xacro defaults is enough for `visualize_*.launch.py`.
 
 ## Visualize in Foxglove
 
@@ -125,11 +128,11 @@ for a 3D layout that reads `/robot_description`.
 | Parameter | Default | Description |
 | --- | --- | --- |
 | `with_gripper` | `false` | Load the gripper model. |
-| `prefix` | `""` | Prefix for link/joint names. |
-| `connected_to` | `world` | Parent of the fixed base mount. |
-| `xyz` / `rpy` | `0 0 0` | Base mount pose. |
-| `xyz_ee` / `rpy_ee` | `0 0 0` | Gripper mount relative to `flange_link`. |
-| `tcp_xyz` / `tcp_rpy` | `config/gripper_tcp.yaml` | TCP relative to `gripper_base`. |
+| `prefix` | xacro default | Prefix for link/joint names. |
+| `connected_to` | xacro default | Parent of the fixed base mount. |
+| `xyz` / `rpy` | xacro default | Base mount pose. |
+| `xyz_ee` / `rpy_ee` | xacro default | Gripper mount relative to `flange_link`. |
+| `tcp_xyz` / `tcp_rpy` | xacro default | TCP relative to `gripper_base`. |
 | `joint_states_topic` | `/piper_description/joint_states` | Joint state topic. |
 | `start_bridge` | `true` | Include `foxglove_bridge`. Set `false` if one is already running. |
 
