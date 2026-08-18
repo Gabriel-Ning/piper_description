@@ -20,7 +20,7 @@ Visualization Manager:
       Description Source: Topic
       Description Topic:
         Depth: 5
-        Durability Policy: Volatile
+        Durability Policy: Transient Local
         History Policy: Keep Last
         Reliability Policy: Reliable
         Value: /robot_description
@@ -36,24 +36,6 @@ Visualization Manager:
       Show Arrows: true
       Show Axes: true
       Show Names: true
-      Value: true
-    - Class: rviz_default_plugins/InteractiveMarkers
-      Enable Transparency: true
-      Enabled: true
-      Interactive Markers Namespace: /target_marker_left
-      Name: LeftTarget
-      Show Axes: false
-      Show Descriptions: true
-      Show Visual Aids: false
-      Value: true
-    - Class: rviz_default_plugins/InteractiveMarkers
-      Enable Transparency: true
-      Enabled: true
-      Interactive Markers Namespace: /target_marker_right
-      Name: RightTarget
-      Show Axes: false
-      Show Descriptions: true
-      Show Visual Aids: false
       Value: true
   Enabled: true
   Global Options:
